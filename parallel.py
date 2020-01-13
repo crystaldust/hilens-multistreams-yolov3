@@ -15,8 +15,6 @@ import os
 from time import sleep
 from yolov3 import predict, initModel
 
-os.environ["SKILL_ID"] = "ff8080826f675342016f948f917702dd"
-
 model   = None
 camera1 = None
 camera2 = None
