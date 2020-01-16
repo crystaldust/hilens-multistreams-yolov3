@@ -55,6 +55,10 @@ def capVideo(cap, flag, upload_uri):
     global input_height
     global input_width
 
+    stable = False
+    num_stable_frames = 0
+    stable_frames_threshold = 5
+
     while True:
         start = cv2.getTickCount()
         frame = cap.read()
@@ -72,6 +76,7 @@ def capVideo(cap, flag, upload_uri):
 
         output_nv21 = None
         if len(res) != 0:
+            print('camera{} got res: {}'.format(flag, res))
             deltaY = h // 5
             deltaX = w // 5
             for item in res:
@@ -80,12 +85,29 @@ def capVideo(cap, flag, upload_uri):
 
                 item[1] += deltaY
                 item[3] += deltaY
-            img_data = draw_box_on_img(input_bgr, res)
+            num_stable_frames += 1
+            stable = num_stable_frames >= stable_frames_threshold
+
+            c = (0, 0, 255)
+            if stable:
+                c = (255,0,0)
+
+            img_data = draw_box_on_img(input_bgr, res, c)
             output_nv21 = hilens.cvt_color(img_data, hilens.BGR2YUV_NV21)
         else:
             output_nv21 = frame
+            stable = False
+            num_stable_frames = 0
 
-        display_hdmi.show(output_nv21)
+        if flag == 1:
+            display_hdmi.show(output_nv21)
+
+            ## Just for debugging
+            if stable:
+                print('stable, sleep for 3 sec, assumuting the robotic arm is moving')
+                sleep(3)
+                stable = False
+                num_stable_frames = 0
 
 def runThreads():
     cam_thread1 = threading.Thread(target=capVideo, args=(camera1, 1, upload_uri1))
