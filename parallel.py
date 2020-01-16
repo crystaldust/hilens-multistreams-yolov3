@@ -30,12 +30,12 @@ def init():
     hilens.set_log_level(hilens.DEBUG)
 
     skill_cfg = hilens.get_skill_config()
-    if (skill_cfg is None or 'IPC_address1' not in skill_cfg or 'IPC_address2' not in skill_cfg:
+    if skill_cfg is None or 'IPC_address1' not in skill_cfg or 'IPC_address2' not in skill_cfg:
         hilens.fatal('Missing IPC_addresses! skill_cfg: {}'.format(skill_cfg))
         hilens.terminate()
         exit(1)
 
-    if ('upload_uri1' not in skill_cfg or 'upload_uri2' not in skill_cfg:
+    if 'upload_uri1' not in skill_cfg or 'upload_uri2' not in skill_cfg:
         hilens.fatal('Missing upload URIs! skill_cfg: {}'.format(skill_cfg))
         hilens.terminate()
         exit(1)
