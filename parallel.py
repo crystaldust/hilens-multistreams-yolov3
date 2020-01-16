@@ -6,7 +6,9 @@ import cv2
 import numpy as np
 import threading
 import os
+import json
 import requests
+from requests.exceptions import ConnectionError, Timeout
 from time import sleep
 from yolov3 import predict, initModel, draw_box_on_img
 from distort import lens_distortion_adjustment
@@ -50,6 +52,16 @@ def init():
 
 input_height = 352
 input_width  = 640
+
+def sendData(uri, res):
+    for item in res:
+        item[5] = '%.3f' % item[5] # Convert posibility from float to str
+    try:
+        requests.post(uri, json.dumps(res).encode('UTF-8'))
+    except ConnectionError as e:
+        hilens.error('Failed to send data, connection error:{}'.format(e))
+    except Timeout as e:
+        hilens.error('Failed to send data, connection timeout:{}'.format(e))
 
 def capVideo(cap, flag, upload_uri):
     global input_height
@@ -99,12 +111,12 @@ def capVideo(cap, flag, upload_uri):
             stable = False
             num_stable_frames = 0
 
-        if flag == 1:
+        if flag == 2:
             display_hdmi.show(output_nv21)
 
-            ## Just for debugging
-            if stable:
-                print('stable, sleep for 3 sec, assumuting the robotic arm is moving')
+        if stable:
+                print('stable, send data')
+                sendData(upload_uri, res)
                 sleep(3)
                 stable = False
                 num_stable_frames = 0
