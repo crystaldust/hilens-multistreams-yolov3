@@ -2,15 +2,16 @@ import numpy as np
 import cv2
 
 # 镜头畸变系数
-lens_mtx = np.array([
+DEF_LENS_MTX = np.array([
 				[1.58206604e+03, 0., 9.87620699e+02],
 				[0., 1.57889682e+03, 5.43361354e+02],
 				[0., 0., 1.],
 		   ])
 
-lens_dist = np.array([[-0.29047252, -0.1558767, 0.0004676, -0.0008854, 0.26806017]])
+DEF_LENS_DIST = np.array([[-0.29047252, -0.1558767, 0.0004676, -0.0008854, 0.26806017]])
 
-def lens_distortion_adjustment(image):
+
+def lens_distortion_adjustment(image, lens_mtx=DEF_LENS_MTX, lens_dist=DEF_LENS_DIST):
 	h, w = image.shape[:2]
 	newcameramtx, roi = cv2.getOptimalNewCameraMatrix(lens_mtx, lens_dist, (w, h), 0, (w, h))  # 自由比例参数
 	dst = cv2.undistort(image, lens_mtx, lens_dist, None, newcameramtx)
