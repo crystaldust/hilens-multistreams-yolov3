@@ -20,6 +20,16 @@ upload_uri1 = None
 upload_uri2 = None
 display_hdmi = None
 
+lens_mtxs = [
+    np.array([[1.58206604e+03, 0.0, 9.87620699e+02],[0.0, 1.57889682e+03, 5.43361354e+02],[0.0, 0.0, 1.0]]),
+    np.array([[1.58206604e+03, 0.0, 9.87620699e+02], [0.0, 1.57889682e+03, 5.43361354e+02],[0.0, 0.0, 1.0]])
+]
+
+lens_dists = [
+    np.array([[-0.29047252, -0.1558767, 0.0004676, -0.0008854, 0.26806017]]),
+    np.array([[-0.29047252, -0.1558767, 0.0004676, -0.0008854, 0.26806017]])
+]
+
 def init():
     global model, camera1, camera2, upload_uri1, upload_uri2, display_hdmi
 
@@ -71,11 +81,14 @@ def capVideo(cap, flag, upload_uri):
     num_stable_frames = 0
     stable_frames_threshold = 5
 
+    lens_mtx    = lens_mtxs[flag]
+    lens_dist   = lens_dists[flag]
+
     while True:
         start = cv2.getTickCount()
         frame = cap.read()
         input_bgr = cv2.cvtColor(frame,cv2.COLOR_YUV2BGR_NV21)
-        input_bgr = lens_distortion_adjustment(input_bgr)
+        input_bgr = lens_distortion_adjustment(input_bgr, lens_mtx=lens_mtx, lens_dist=lens_dist)
 
         h, w, _ = input_bgr.shape
         cropped_input_bgr = input_bgr[h//5:h//5*4, w//5:w//5*4, :]
@@ -111,7 +124,7 @@ def capVideo(cap, flag, upload_uri):
             stable = False
             num_stable_frames = 0
 
-        if flag == 2:
+        if flag == 1:
             display_hdmi.show(output_nv21)
 
         if stable:
@@ -122,10 +135,10 @@ def capVideo(cap, flag, upload_uri):
                 num_stable_frames = 0
 
 def runThreads():
-    cam_thread1 = threading.Thread(target=capVideo, args=(camera1, 1, upload_uri1))
+    cam_thread1 = threading.Thread(target=capVideo, args=(camera1, 0, upload_uri1))
     cam_thread1.start()
 
-    cam_thread2 = threading.Thread(target=capVideo, args=(camera2, 2, upload_uri2))
+    cam_thread2 = threading.Thread(target=capVideo, args=(camera2, 1, upload_uri2))
     cam_thread2.start()
 
     cam_thread1.join()
