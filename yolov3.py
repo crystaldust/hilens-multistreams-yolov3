@@ -11,7 +11,8 @@ net_w = 640
 input_height = 352
 input_width = 640
 
-class_names = ['apple', 'bus', 'train', 'bear', 'zebra', 'giraffe']
+# class_names = ['apple', 'bus', 'train', 'bear', 'zebra', 'giraffe']
+class_names = ['zebra', 'banana', 'apple', 'bus']
 class_num   = len(class_names)
 
 stride_list = [8, 16, 32]
