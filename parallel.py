@@ -20,21 +20,24 @@ upload_uri1 = None
 upload_uri2 = None
 display_hdmi = None
 
+# trick: lens_mtxs[0] is for camera1
 lens_mtxs = [
-    np.array([[1.58206604e+03, 0.0, 9.87620699e+02],[0.0, 1.57889682e+03, 5.43361354e+02],[0.0, 0.0, 1.0]]),
+    np.array([[1532.3835774495203, 0.0, 963.2349158394692], [0.0, 1529.9521976155718, 534.408028051908], [0.0, 0.0, 1.0]]),
     np.array([[1.58206604e+03, 0.0, 9.87620699e+02], [0.0, 1.57889682e+03, 5.43361354e+02],[0.0, 0.0, 1.0]])
 ]
 
+# trick: lens_dists[0] is for camera1
 lens_dists = [
-    np.array([[-0.29047252, -0.1558767, 0.0004676, -0.0008854, 0.26806017]]),
+    np.array([[-0.2713632975134281, -0.14711397562895906, 0.0031891790347745616, -0.0013621657772392918, 0.20355047701488785]]),
     np.array([[-0.29047252, -0.1558767, 0.0004676, -0.0008854, 0.26806017]])
 ]
+
 
 def init():
     global model, camera1, camera2, upload_uri1, upload_uri2, display_hdmi
 
     hilens.init("hello")
-    model_path = hilens.get_model_dir() + "./convert-ta.om"
+    model_path = hilens.get_model_dir() + "./convert-4label.om"
     model      = hilens.Model(model_path)
     display_hdmi = hilens.Display(hilens.HDMI)
 
@@ -53,7 +56,7 @@ def init():
         exit(1)
 
     camera1 = hilens.VideoCapture(skill_cfg['IPC_address1'])
-    camera2 = hilens.VideoCapture(skill_cfg['IPC_address2'])
+    #camera2 = hilens.VideoCapture(skill_cfg['IPC_address2'])
 
     upload_uri1 = skill_cfg['upload_uri1']
     upload_uri2 = skill_cfg['upload_uri2']
@@ -138,11 +141,11 @@ def runThreads():
     cam_thread1 = threading.Thread(target=capVideo, args=(camera1, 0, upload_uri1))
     cam_thread1.start()
 
-    cam_thread2 = threading.Thread(target=capVideo, args=(camera2, 1, upload_uri2))
-    cam_thread2.start()
+    #cam_thread2 = threading.Thread(target=capVideo, args=(camera2, 1, upload_uri2))
+    #cam_thread2.start()
 
     cam_thread1.join()
-    cam_thread2.join()
+    #cam_thread2.join()
 
 
 if __name__ == '__main__':
