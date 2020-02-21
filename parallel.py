@@ -45,21 +45,24 @@ def init():
     hilens.set_log_level(hilens.DEBUG)
 
     skill_cfg = hilens.get_skill_config()
-    if skill_cfg is None or 'IPC_address1' not in skill_cfg or 'IPC_address2' not in skill_cfg:
-        hilens.fatal('Missing IPC_addresses! skill_cfg: {}'.format(skill_cfg))
+    if skill_cfg is None or 'IPC_address1' not in skill_cfg or 'upload_uri1' not in skill_cfg:
+        hilens.fatal('Missing IPC1 skill configs! skill_cfg: {}'.format(skill_cfg))
         hilens.terminate()
         exit(1)
-
-    if 'upload_uri1' not in skill_cfg or 'upload_uri2' not in skill_cfg:
-        hilens.fatal('Missing upload URIs! skill_cfg: {}'.format(skill_cfg))
-        hilens.terminate()
-        exit(1)
-
-    camera1 = hilens.VideoCapture(skill_cfg['IPC_address1'])
-    #camera2 = hilens.VideoCapture(skill_cfg['IPC_address2'])
-
+    try:
+        camera1 = hilens.VideoCapture(skill_cfg['IPC_address1'])
+    except Exception as e:
+        hilens.fatal("Failed to create camera1 with {}, e: {}", skill_cfg['IPC_address1'], e)
     upload_uri1 = skill_cfg['upload_uri1']
-    upload_uri2 = skill_cfg['upload_uri2']
+
+    if  'IPC_address2' not in skill_cfg or 'upload_uri2' not in skill_cfg:
+        hilens.warning('Missing IPC2 skill configs! Camera2 will not work. skill_cfg: {}'.format(skill_cfg))
+    else:
+        try:
+            camera2 = hilens.VideoCapture(skill_cfg['IPC_address2'])
+        except Exception as e:
+            hilens.fatal("Failed to create camera2 with {}, e: {}", skill_cfg['IPC_address2'], e)
+        upload_uri2 = skill_cfg['upload_uri2']
 
     initModel(model)
 
@@ -140,13 +143,13 @@ def capVideo(cap, flag, upload_uri):
 def runThreads():
     cam_thread1 = threading.Thread(target=capVideo, args=(camera1, 0, upload_uri1))
     cam_thread1.start()
-
-    #cam_thread2 = threading.Thread(target=capVideo, args=(camera2, 1, upload_uri2))
-    #cam_thread2.start()
-
     cam_thread1.join()
-    #cam_thread2.join()
 
+    global camera2
+    if camera2 != None:
+        cam_thread2 = threading.Thread(target=capVideo, args=(camera2, 1, upload_uri2))
+        cam_thread2.start()
+        cam_thread2.join()
 
 if __name__ == '__main__':
     init()
