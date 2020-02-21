@@ -165,7 +165,7 @@ def get_result(model_outputs, img_w, img_h, new_w, new_h, shift_x_ratio, shift_y
     #print ('postprocess time : ', time_end - time_start)
     return res
 
-def draw_box_on_img(img_data, res):
+def draw_box_on_img(img_data, res, c=(0,0,255)):
     text_thickness = 2
     line_type = 1
     thickness = 2
@@ -179,6 +179,6 @@ def draw_box_on_img(img_data, res):
         cv2.rectangle(img_data, (x_min, y_min), (x_max, y_max), colors[label%6], thickness)
 
         s = '%s %.1f' % (class_names[label], score*100)
-        cv2.putText(img_data, s, (x_min, y_min), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), text_thickness, line_type)
+        cv2.putText(img_data, s, (x_min, y_min), cv2.FONT_HERSHEY_SIMPLEX, 1, c, text_thickness, line_type)
 
     return img_data
